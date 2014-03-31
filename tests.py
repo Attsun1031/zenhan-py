@@ -4,11 +4,14 @@ import sys
 import unittest
 
 import zenhan
+from itertools import chain
 
 
 def u(s):
     return s if sys.version_info >= (3, 0) else unicode(s, 'utf8')
 
+def unichr_(s):
+    return chr(s) if sys.version_info >= (3, 0) else unichr(s)
 
 class TestZenhan(unittest.TestCase):
     def setUp(self):
@@ -76,6 +79,13 @@ class TestZenhan(unittest.TestCase):
                          zenhan.z2h(self.original,
                                     zenhan.ASCII|zenhan.DIGIT|zenhan.KANA))
 
+    def test_all_alpha(self):
+        all_hankaku_alpha = map(unichr_, chain(range(97, 123), range(65, 96)))
+        all_zenkaku_alpha = map(unichr_, chain(range(0xff41, 0xff5b), range(0xff21, 0xff3b)))
+
+        for h_char, z_char in zip(all_hankaku_alpha, all_zenkaku_alpha):
+            self.assertEqual(zenhan.h2z(h_char), z_char)
+            self.assertEqual(zenhan.z2h(z_char), h_char)
 
 if __name__ == '__main__':
     unittest.main()
